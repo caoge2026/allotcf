@@ -1,0 +1,5 @@
+attachments/**/*.{mp3,wav,flac,ogg,m4a} filter=lfs diff=lfs merge=lfs -text
+attachments/**/*.{mp4,mov} filter=lfs diff=lfs merge=lfs -text
+attachments/**/*.{png,jpg,jpeg,gif,webp} filter=lfs diff=lfs merge=lfs -text
+attachments/**/*.{pdf,doc,docx,xls,xlsx,ppt,pptx,zip,7z,rar,tar,gz} filter=lfs diff=lfs merge=lfs -text
+attachments/** filter=lfs diff=lfs merge=lfs -text
