@@ -21,6 +21,3 @@ scripts/venv/
 .vscode/
 *.iml
 .DS_Store
-
-# project data files should stay local for now
-attachments/
