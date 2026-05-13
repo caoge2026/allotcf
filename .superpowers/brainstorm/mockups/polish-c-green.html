@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AllotCF Revue Verte</title>
+    <style>
+      :root {
+        --bg: #f2f4ee;
+        --paper: #fbfcf8;
+        --ink: #182018;
+        --muted: #627064;
+        --line: #cfd7cc;
+        --green: #48654f;
+        --green-deep: #274033;
+        --green-soft: #e4ebe2;
+        --green-pale: #f0f4ef;
+        --wrong: #b5655c;
+        --shadow: 0 24px 60px rgba(32, 54, 39, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(72, 101, 79, 0.10), transparent 28%),
+          linear-gradient(180deg, #f8faf5 0%, var(--bg) 100%);
+      }
+
+      .wrap {
+        width: min(1320px, calc(100vw - 56px));
+        margin: 0 auto;
+        padding: 42px 0 72px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 26px;
+        margin-bottom: 28px;
+      }
+
+      .panel {
+        background: rgba(251, 252, 248, 0.9);
+        border: 1px solid rgba(72, 101, 79, 0.16);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .intro, .notes, .screen {
+        padding: 28px 30px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 12px;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--green);
+      }
+
+      h1 {
+        margin: 0 0 14px;
+        font-size: 46px;
+        line-height: 1.06;
+      }
+
+      .intro p, .notes li, .notes p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.72;
+      }
+
+      .notes h2, .stack h2 {
+        margin: 0 0 10px;
+        font-size: 24px;
+      }
+
+      .notes ul {
+        margin: 0 0 16px;
+        padding-left: 18px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 20px;
+      }
+
+      .screens {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      .screen {
+        border-radius: 24px;
+      }
+
+      .caption {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .chip {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--green-soft);
+        color: var(--green);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .mock {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        overflow: hidden;
+        background: var(--paper);
+        min-height: 430px;
+      }
+
+      .mock-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #f7faf4 0%, #f1f5ef 100%);
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .mock-body { padding: 16px; }
+
+      .headline {
+        font-size: 28px;
+        line-height: 1.08;
+        margin-bottom: 12px;
+      }
+
+      .rule {
+        width: 56px;
+        height: 3px;
+        background: var(--green);
+        margin-bottom: 16px;
+      }
+
+      .field, .list-card, .option, .result-row {
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,0.7);
+      }
+
+      .field {
+        height: 44px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+
+      .btn {
+        height: 42px;
+        border-radius: 999px;
+        background: var(--green);
+        margin-top: 8px;
+      }
+
+      .subtle {
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .list-card {
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .list-card strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 18px;
+      }
+
+      .meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .cta {
+        width: 78px;
+        height: 30px;
+        border-radius: 999px;
+        background: var(--green-soft);
+        margin-top: 10px;
+      }
+
+      .passage {
+        padding: 14px;
+        border-radius: 10px;
+        background: var(--green-pale);
+        border: 1px solid var(--line);
+        color: #435246;
+        line-height: 1.65;
+        margin-bottom: 14px;
+      }
+
+      .option {
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+
+      .option.active {
+        border-color: var(--green);
+        background: #edf4ef;
+      }
+
+      .score-box {
+        padding: 24px 16px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #eef4ed, #fbfcf8);
+        border: 1px solid var(--line);
+        text-align: center;
+        margin-bottom: 14px;
+      }
+
+      .score {
+        font-size: 46px;
+        color: var(--green);
+        font-weight: 700;
+      }
+
+      .result-row {
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 8px;
+      }
+
+      .result-row.bad {
+        border-color: rgba(181, 101, 92, 0.35);
+        background: #f8f1f0;
+      }
+
+      .footer {
+        margin-top: 26px;
+        padding: 24px 28px;
+      }
+
+      .footer p {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.72;
+      }
+
+      @media (max-width: 1180px) {
+        .hero, .screens { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="hero">
+        <div class="panel intro">
+          <div class="eyebrow">Direction Locked</div>
+          <h1>C · Revue，但改成更冷静、偏绿色的法语考试气质。</h1>
+          <p>
+            这套会像一本法语评论杂志与考试练习册的混合体。标题更有版式感，边框更克制，层级更像印刷排版，
+            但交互仍保持现代工具的效率，不会做成装饰性过强的“文艺站”。
+          </p>
+        </div>
+
+        <div class="panel notes">
+          <h2>这套视觉会怎么落地</h2>
+          <ul>
+            <li>主色改为 <strong>鼠尾草绿 / 深森林绿</strong>，替代暖棕。</li>
+            <li>四页统一使用 <strong>浅纸面背景 + 杂志式标题 + 细边框模块</strong>。</li>
+            <li>按钮与选中状态更像“批注 / 标记”，而不是普通 SaaS 按钮。</li>
+            <li>结果页保留高对比反馈，但整体仍是浅色、安静、专业。</li>
+          </ul>
+          <p>
+            如果这个方向对，我下一步就不再问风格问题，直接把四页一起改成正式 UI。
+          </p>
+        </div>
+      </section>
+
+      <section class="stack">
+        <div class="panel" style="padding: 24px 28px;">
+          <div class="eyebrow">Unified Screens</div>
+          <h2>四页统一语言预览</h2>
+
+          <div class="screens">
+            <div class="screen panel">
+              <div class="caption"><span>Login</span><span class="chip">Paper Entry</span></div>
+              <div class="mock">
+                <div class="mock-head"><span>Connexion</span><span>AllotCF</span></div>
+                <div class="mock-body">
+                  <div class="headline">登录你的练习册</div>
+                  <div class="rule"></div>
+                  <div class="field"></div>
+                  <div class="field"></div>
+                  <div class="btn"></div>
+                  <div class="subtle">没有账号？现在开始一套新的法语阅读训练。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen panel">
+              <div class="caption"><span>Exam Sets</span><span class="chip">Curated Shelf</span></div>
+              <div class="mock">
+                <div class="mock-head"><span>Bibliothèque</span><span>Tester</span></div>
+                <div class="mock-body">
+                  <div class="headline">题库列表</div>
+                  <div class="rule"></div>
+                  <div class="list-card">
+                    <strong>阅读练习第一套</strong>
+                    <div class="meta">共 10 题 · 阅读模块</div>
+                    <div class="cta"></div>
+                  </div>
+                  <div class="list-card">
+                    <strong>阅读练习第二套</strong>
+                    <div class="meta">共 20 题 · 阅读模块</div>
+                    <div class="cta"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen panel">
+              <div class="caption"><span>Practice</span><span class="chip">Focused Reading</span></div>
+              <div class="mock">
+                <div class="mock-head"><span>Question 02</span><span>2 / 10</span></div>
+                <div class="mock-body">
+                  <div class="passage">这里是阅读材料，像一张被整理过的法语练习页，而不是普通灰框内容块。</div>
+                  <div class="headline" style="font-size:22px">第二题答案是什么？</div>
+                  <div class="option">A. 选项 A</div>
+                  <div class="option active">B. 选项 B</div>
+                  <div class="option">C. 选项 C</div>
+                  <div class="btn"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen panel">
+              <div class="caption"><span>Result</span><span class="chip">Reviewed</span></div>
+              <div class="mock">
+                <div class="mock-head"><span>Résultat</span><span>Session 01</span></div>
+                <div class="mock-body">
+                  <div class="score-box">
+                    <div class="score">18 / 20</div>
+                    <div class="meta">正确率 90%</div>
+                  </div>
+                  <div class="result-row">第 1 题 · 正确</div>
+                  <div class="result-row bad">第 2 题 · 错误，正确答案 C</div>
+                  <div class="result-row">第 3 题 · 正确</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel footer">
+        <div class="eyebrow">Decision Check</div>
+        <p>
+          如果你觉得这个方向对，就直接回我：<strong>“就按这个做”</strong>。
+          如果只想微调，也可以说：<strong>“更绿一点”</strong>、<strong>“更淡一点”</strong>、<strong>“标题别这么强”</strong>。
+        </p>
+      </section>
+    </div>
+  </body>
+</html>

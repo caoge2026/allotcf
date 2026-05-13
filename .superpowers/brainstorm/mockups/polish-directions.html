@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AllotCF Visual Directions</title>
+    <style>
+      :root {
+        --bg: #f6f0e6;
+        --paper: #fffdf8;
+        --ink: #201a16;
+        --muted: #76685f;
+        --line: #d9ccbd;
+        --accent: #c46a2f;
+        --accent-soft: #f2e1d2;
+        --olive: #7d8260;
+        --rose: #b85b4b;
+        --shadow: 0 20px 50px rgba(54, 34, 22, 0.09);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        background:
+          radial-gradient(circle at top left, rgba(196, 106, 47, 0.08), transparent 30%),
+          linear-gradient(180deg, #f8f4ec 0%, var(--bg) 100%);
+        color: var(--ink);
+      }
+
+      .wrap {
+        width: min(1320px, calc(100vw - 48px));
+        margin: 0 auto;
+        padding: 40px 0 64px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 28px;
+        margin-bottom: 34px;
+      }
+
+      .panel {
+        background: rgba(255, 253, 248, 0.88);
+        border: 1px solid rgba(121, 96, 79, 0.16);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+      }
+
+      .intro {
+        padding: 32px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        margin: 0 0 14px;
+        font-size: 44px;
+        line-height: 1.08;
+        font-weight: 700;
+      }
+
+      .intro p, .notes li {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.7;
+      }
+
+      .notes {
+        padding: 28px 32px;
+      }
+
+      .notes h2 {
+        margin: 0 0 10px;
+        font-size: 22px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 22px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .card.recommended {
+        border: 1.5px solid rgba(196, 106, 47, 0.4);
+        box-shadow: 0 24px 60px rgba(196, 106, 47, 0.14);
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .card h3 {
+        margin: 16px 0 8px;
+        font-size: 28px;
+      }
+
+      .card p {
+        color: var(--muted);
+        line-height: 1.65;
+        min-height: 72px;
+      }
+
+      .mini-ui {
+        margin-top: 18px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        overflow: hidden;
+        background: #fffefb;
+      }
+
+      .mini-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(250, 244, 234, 0.85);
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .mini-body {
+        padding: 16px;
+      }
+
+      .line-title {
+        width: 68%;
+        height: 14px;
+        border-radius: 999px;
+        background: #2a221d;
+        opacity: 0.88;
+        margin-bottom: 12px;
+      }
+
+      .line-copy {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        background: #d4c8ba;
+        margin-bottom: 10px;
+      }
+
+      .line-copy.short { width: 72%; }
+
+      .button-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .btn {
+        min-width: 92px;
+        height: 38px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+      }
+
+      .btn.primary { background: var(--accent); }
+      .btn.secondary { background: transparent; border-color: var(--line); }
+
+      .list-card {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        margin-top: 12px;
+        background: rgba(255,255,255,0.72);
+      }
+
+      .list-card .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .pill {
+        width: 74px;
+        height: 30px;
+        border-radius: 999px;
+        background: #efe0d0;
+      }
+
+      .option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        margin-top: 10px;
+      }
+
+      .dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid var(--line);
+      }
+
+      .result-box {
+        margin-top: 16px;
+        padding: 20px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #f6ece2, #fffdf8);
+        border: 1px solid var(--line);
+      }
+
+      .score {
+        font-size: 42px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .footer {
+        margin-top: 28px;
+        padding: 24px 28px;
+      }
+
+      .footer h2 {
+        margin: 0 0 12px;
+        font-size: 24px;
+      }
+
+      .footer strong { color: var(--ink); }
+
+      @media (max-width: 1100px) {
+        .hero, .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="hero">
+        <section class="panel intro">
+          <div class="eyebrow">AllotCF Unified Style</div>
+          <h1>浅色、法语考试、书卷感，但仍然像一个高效率工具。</h1>
+          <p>
+            这是为 `登录 / 题库列表 / 答题页 / 结果页` 一起做的统一视觉方向对比。
+            我刻意避开了通用教育站模板，重点放在纸面感、考试秩序、清晰层级和专业效率感之间的平衡。
+          </p>
+        </section>
+
+        <aside class="panel notes">
+          <h2>我建议你这样选</h2>
+          <ul>
+            <li><strong>如果你想先上线、风险最低：</strong>选 B。</li>
+            <li><strong>如果你更想要文艺气质：</strong>选 A。</li>
+            <li><strong>如果你想更像编辑展册：</strong>选 C。</li>
+          </ul>
+          <p>
+            我的推荐是 <strong>B：Diplomatic Notebook</strong>。它最容易同时满足“简单工具”与“高级备考平台”。
+          </p>
+        </aside>
+      </div>
+
+      <div class="grid">
+        <section class="panel card">
+          <div class="tag">A · Paris Margin</div>
+          <h3>更柔和的纸张感</h3>
+          <p>偏法语教材与旧书页的气质，留白多、边框轻、情绪温和。更有“法语考试 / 书卷感”，但产品效率感略弱一些。</p>
+
+          <div class="mini-ui">
+            <div class="mini-head"><span>Connexion</span><span>Lecture TCF</span></div>
+            <div class="mini-body">
+              <div class="line-title" style="background:#3a312b;width:52%"></div>
+              <div class="line-copy"></div>
+              <div class="line-copy short"></div>
+              <div class="button-row">
+                <div class="btn primary" style="background:#bb7444"></div>
+                <div class="btn secondary"></div>
+              </div>
+              <div class="list-card">
+                <div class="top"><strong>阅读练习第一套</strong><div class="pill"></div></div>
+                <div class="line-copy short"></div>
+              </div>
+              <div class="option"><div class="dot"></div><div class="line-copy short"></div></div>
+              <div class="result-box"><div class="score">18 / 20</div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel card recommended">
+          <div class="tag">B · Recommended</div>
+          <h3>Diplomatic Notebook</h3>
+          <p>像一本高质量考试记录册。依然浅色、安静、纸感，但按钮、卡片和结果反馈更明确，最适合做 MVP 的统一正式视觉。</p>
+
+          <div class="mini-ui">
+            <div class="mini-head"><span>Session de lecture</span><span>Préparation Canada</span></div>
+            <div class="mini-body">
+              <div class="line-title" style="background:#231d18;width:58%"></div>
+              <div class="line-copy"></div>
+              <div class="line-copy short"></div>
+              <div class="button-row">
+                <div class="btn primary"></div>
+                <div class="btn secondary"></div>
+              </div>
+              <div class="list-card" style="box-shadow: inset 0 0 0 1px rgba(196,106,47,.08)">
+                <div class="top"><strong>阅读练习第一套</strong><div class="pill" style="background:#f1d9c3"></div></div>
+                <div class="line-copy short"></div>
+              </div>
+              <div class="option" style="border-color:#c46a2f;background:#fff9f2">
+                <div class="dot" style="border-color:#c46a2f;background:#c46a2f"></div>
+                <div class="line-copy short"></div>
+              </div>
+              <div class="result-box" style="background:linear-gradient(135deg,#fbf1e5,#fffdf8)">
+                <div class="score">18 / 20</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel card">
+          <div class="tag">C · Revue</div>
+          <h3>更像法语杂志版式</h3>
+          <p>标题更有存在感，边界更克制，像一本法语评论周刊。视觉上最特别，但对于答题页来说需要更小心控制信息密度。</p>
+
+          <div class="mini-ui">
+            <div class="mini-head"><span>Revue d’examen</span><span>Numéro 01</span></div>
+            <div class="mini-body">
+              <div class="line-title" style="background:#16120f;width:76%"></div>
+              <div class="line-copy"></div>
+              <div class="line-copy short" style="width:58%"></div>
+              <div class="button-row">
+                <div class="btn primary" style="background:#8a5b3f"></div>
+                <div class="btn secondary"></div>
+              </div>
+              <div class="list-card" style="border-radius:6px">
+                <div class="top"><strong>阅读练习第一套</strong><div class="pill" style="border-radius:4px"></div></div>
+                <div class="line-copy short"></div>
+              </div>
+              <div class="option" style="border-radius:6px"><div class="dot"></div><div class="line-copy short"></div></div>
+              <div class="result-box" style="border-radius:10px">
+                <div class="score" style="color:#8a5b3f">18 / 20</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel footer">
+        <h2>我的推荐：<strong>B · Diplomatic Notebook</strong></h2>
+        <p>
+          它最适合你现在的目标：既保留法语考试的文化气质，又不会牺牲“开始练习、答题、看结果”这条主路径的清晰度。
+          如果你愿意，我就按 B 作为主基调，再少量借 A 的柔和感，让整体更有温度。
+        </p>
+        <p>
+          你回复我：<strong>A / B / C</strong>，或者说 <strong>“B，但更像 A 一点”</strong> 也可以。
+        </p>
+      </section>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+[Unit]
+Description=AllôTCF Spring Boot Application
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory={{ REMOTE_BACKEND_DIR }}
+ExecStart=/usr/bin/java -Xms128m -Xmx512m -jar {{ REMOTE_BACKEND_DIR }}/allotcf.jar --spring.config.additional-location={{ REMOTE_APP_CONFIG }}
+SuccessExitStatus=143
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

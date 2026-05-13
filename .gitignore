@@ -1,0 +1,26 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend
+backend/target/
+backend/.mvn/
+*.class
+
+# Python
+scripts/__pycache__/
+scripts/.pytest_cache/
+scripts/.env
+scripts/deploy/.env.*
+!scripts/deploy/.env.example
+scripts/venv/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# project data files should stay local for now
+attachments/

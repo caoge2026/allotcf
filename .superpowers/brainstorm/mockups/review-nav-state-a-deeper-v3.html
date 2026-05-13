@@ -1,0 +1,156 @@
+<style>
+  :root {
+    --bg: #f6f4ee;
+    --panel: #fbfaf6;
+    --line: rgba(78, 88, 73, 0.14);
+    --text: #243126;
+    --muted: #6b7669;
+    --ok-border: rgba(70, 118, 82, 0.58);
+    --ok-bg: #cfe3d3;
+    --ok-text: #2a5138;
+    --bad-border: rgba(170, 103, 96, 0.36);
+    --bad-bg: #f3e3e0;
+    --bad-text: #8a5751;
+    --idle-border: rgba(133, 126, 102, 0.2);
+    --idle-bg: #f8f4ed;
+    --current-ring: rgba(33, 48, 37, 0.18);
+    --current-shadow: rgba(47, 63, 52, 0.22);
+  }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at top left, rgba(120, 146, 125, 0.08), transparent 35%),
+      linear-gradient(180deg, #fbfaf6, #f4f1e9);
+    color: var(--text);
+    font-family: "Baskerville", "Times New Roman", serif;
+  }
+
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 28px 56px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    margin: 10px 0 24px;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .mockup {
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: rgba(251, 250, 246, 0.94);
+    box-shadow: 0 14px 32px rgba(48, 58, 49, 0.06);
+    overflow: hidden;
+  }
+
+  .mockup-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .mockup-body {
+    padding: 22px;
+  }
+
+  .nav-title {
+    margin-bottom: 18px;
+    font-size: 1.95rem;
+    line-height: 1.15;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 66px;
+    border-radius: 18px;
+    border: 1px solid var(--idle-border);
+    background: var(--idle-bg);
+    color: #304338;
+    font-size: 1.28rem;
+    transition: all 140ms ease;
+  }
+
+  .num.ok {
+    border-color: var(--ok-border);
+    background: var(--ok-bg);
+    color: var(--ok-text);
+  }
+
+  .num.bad {
+    border-color: var(--bad-border);
+    background: var(--bad-bg);
+    color: var(--bad-text);
+  }
+
+  .num.current {
+    box-shadow:
+      inset 0 0 0 3px var(--current-ring),
+      0 10px 22px var(--current-shadow);
+    transform: translateY(-2px);
+    font-weight: 700;
+  }
+
+  .legend {
+    margin-top: 18px;
+    color: var(--muted);
+    font-size: 0.96rem;
+    line-height: 1.75;
+  }
+
+  .legend strong {
+    color: var(--text);
+  }
+</style>
+
+<div class="wrap">
+  <h2>A 方案加深版 V3</h2>
+  <p class="subtitle">这版把绿色继续压深，红色稍微收回来，避免太泛红；当前题则用更明显的内圈和更强一点的浮起感来强调。</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Review Nav</div>
+    <div class="mockup-body">
+      <div class="nav-title">TCF 阅读真题 01</div>
+      <div class="grid">
+        <div class="num bad">01</div>
+        <div class="num ok current">02</div>
+        <div class="num">03</div>
+        <div class="num bad">04</div>
+        <div class="num">05</div>
+        <div class="num ok">06</div>
+        <div class="num">07</div>
+        <div class="num">08</div>
+        <div class="num">09</div>
+        <div class="num">10</div>
+        <div class="num">11</div>
+        <div class="num">12</div>
+      </div>
+      <div class="legend">
+        <strong>正确</strong>：再深一档的绿色底<br>
+        <strong>错误</strong>：更收的粉红底<br>
+        <strong>未作答</strong>：纸面中性色底<br>
+        <strong>当前题</strong>：更清楚的内圈 + 投影 + 浮起感
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,265 @@
+<style>
+  :root {
+    --bg: #f6f4ee;
+    --panel: #fbfaf6;
+    --line: rgba(78, 88, 73, 0.14);
+    --text: #243126;
+    --muted: #6b7669;
+    --accent: #48654f;
+    --ok: #6f9779;
+    --ok-bg: #eef5ef;
+    --bad: #bc7f76;
+    --bad-bg: #fbf1ef;
+    --idle-bg: #f8f4ed;
+  }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at top left, rgba(120, 146, 125, 0.08), transparent 35%),
+      linear-gradient(180deg, #fbfaf6, #f4f1e9);
+    color: var(--text);
+    font-family: "Baskerville", "Times New Roman", serif;
+  }
+
+  .wrap {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 36px 28px 56px;
+  }
+
+  .intro {
+    margin-bottom: 22px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: rgba(251, 250, 246, 0.92);
+    box-shadow: 0 14px 32px rgba(48, 58, 49, 0.06);
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .card-head {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .label {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.75rem;
+  }
+
+  .card h3 {
+    margin: 10px 0 0;
+    font-size: 1.45rem;
+    line-height: 1.15;
+  }
+
+  .card-body {
+    padding: 18px 20px 20px;
+  }
+
+  .nav-title {
+    margin-bottom: 16px;
+    font-size: 1.8rem;
+    line-height: 1.15;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .num {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    border-radius: 18px;
+    border: 1px solid rgba(124, 116, 98, 0.2);
+    background: var(--idle-bg);
+    color: #304338;
+    font-size: 1.25rem;
+  }
+
+  .num.ok {
+    border-color: rgba(111, 151, 121, 0.44);
+    color: #497055;
+  }
+
+  .num.bad {
+    border-color: rgba(188, 127, 118, 0.42);
+    color: #9b6158;
+  }
+
+  .num.current {
+    box-shadow: inset 0 0 0 2px rgba(53, 72, 58, 0.1);
+    font-weight: 700;
+  }
+
+  .a .num.current.ok {
+    background: #e5efe7;
+  }
+
+  .a .num.current.bad {
+    background: #f6e7e4;
+  }
+
+  .b .num::after {
+    content: "";
+    position: absolute;
+    top: 9px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .b .num.ok::after {
+    background: var(--ok);
+  }
+
+  .b .num.bad::after {
+    background: var(--bad);
+  }
+
+  .b .num.current {
+    background: #2f4736;
+    color: #f8f7f2;
+    border-color: #2f4736;
+  }
+
+  .c .num::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 6px;
+    border-radius: 18px 0 0 18px;
+    background: transparent;
+  }
+
+  .c .num.ok::before {
+    background: var(--ok);
+  }
+
+  .c .num.bad::before {
+    background: var(--bad);
+  }
+
+  .c .num.current {
+    border-width: 2px;
+    border-color: #364a39;
+    background: #f8f5ee;
+  }
+
+  .legend {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 1100px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="wrap">
+  <div class="intro">
+    <h2>复盘目录状态示例</h2>
+    <p class="subtitle">我把“正确 / 错误 / 未作答 / 当前题”拆成 3 种视觉方案。重点不是颜色更深或更浅，而是看哪种最容易一眼分辨。点击任意一张即可选中。</p>
+  </div>
+
+  <div class="cards">
+    <div class="card a" data-choice="a" onclick="toggleSelect(this)">
+      <div class="card-head">
+        <div class="label">A</div>
+        <h3>柔和底色版</h3>
+      </div>
+      <div class="card-body">
+        <div class="nav-title">TCF 阅读真题 01</div>
+        <div class="grid">
+          <div class="num bad">01</div>
+          <div class="num ok current">02</div>
+          <div class="num">03</div>
+          <div class="num bad">04</div>
+          <div class="num">05</div>
+          <div class="num ok">06</div>
+          <div class="num">07</div>
+          <div class="num">08</div>
+        </div>
+        <div class="legend">现在接近这个方向，但你刚才已经觉得区分度不够。</div>
+      </div>
+    </div>
+
+    <div class="card b" data-choice="b" onclick="toggleSelect(this)">
+      <div class="card-head">
+        <div class="label">B</div>
+        <h3>深色当前题 + 右上角标记</h3>
+      </div>
+      <div class="card-body">
+        <div class="nav-title">TCF 阅读真题 01</div>
+        <div class="grid">
+          <div class="num bad">01</div>
+          <div class="num ok current">02</div>
+          <div class="num">03</div>
+          <div class="num bad">04</div>
+          <div class="num">05</div>
+          <div class="num ok">06</div>
+          <div class="num">07</div>
+          <div class="num">08</div>
+        </div>
+        <div class="legend">当前题最明显；正确/错误靠细边框 + 小圆点区分，不靠大面积色块。</div>
+      </div>
+    </div>
+
+    <div class="card c" data-choice="c" onclick="toggleSelect(this)">
+      <div class="card-head">
+        <div class="label">C</div>
+        <h3>左色条版</h3>
+      </div>
+      <div class="card-body">
+        <div class="nav-title">TCF 阅读真题 01</div>
+        <div class="grid">
+          <div class="num bad">01</div>
+          <div class="num ok current">02</div>
+          <div class="num">03</div>
+          <div class="num bad">04</div>
+          <div class="num">05</div>
+          <div class="num ok">06</div>
+          <div class="num">07</div>
+          <div class="num">08</div>
+        </div>
+        <div class="legend">不用高饱和底色，改为左侧色条表达对错，当前题靠深边框单独强调。</div>
+      </div>
+    </div>
+  </div>
+</div>

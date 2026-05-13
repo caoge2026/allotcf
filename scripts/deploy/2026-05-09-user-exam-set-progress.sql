@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS user_exam_set_progress (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  exam_set_id BIGINT NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'NOT_STARTED',
+  latest_session_id BIGINT NULL,
+  current_index INT NULL,
+  answered_count INT NULL,
+  total_count INT NULL,
+  paused_remaining_seconds INT NULL,
+  score INT NULL,
+  nclc_level_label VARCHAR(50) NULL,
+  answers_json LONGTEXT NULL,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_user_exam_set_progress_user_exam (user_id, exam_set_id),
+  KEY idx_user_exam_set_progress_exam_set (exam_set_id),
+  KEY idx_user_exam_set_progress_session (latest_session_id),
+  CONSTRAINT fk_user_exam_set_progress_user FOREIGN KEY (user_id) REFERENCES users(id),
+  CONSTRAINT fk_user_exam_set_progress_exam_set FOREIGN KEY (exam_set_id) REFERENCES exam_set(id),
+  CONSTRAINT fk_user_exam_set_progress_session FOREIGN KEY (latest_session_id) REFERENCES practice_session(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

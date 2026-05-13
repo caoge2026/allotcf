@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AllôTCF 手机端 C 方案细化</title>
+    <style>
+      :root {
+        --ink: #142119;
+        --muted: #657469;
+        --paper: #fbfcf7;
+        --soft: #eef5ec;
+        --line: #cddbcf;
+        --accent: #48654f;
+        --accent-deep: #274033;
+        --success-bg: #c4ddca;
+        --success: #244a31;
+        --error-bg: #ecd2ce;
+        --error: #7e4842;
+        --teal: #3e8f99;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 34px;
+        background:
+          radial-gradient(circle at 12% 0%, rgba(196, 221, 202, 0.62), transparent 34rem),
+          linear-gradient(135deg, #fbfcf7, #f3efe7);
+        color: var(--ink);
+        font-family: "Songti SC", "Noto Serif SC", serif;
+      }
+
+      header {
+        max-width: 1100px;
+        margin: 0 auto 24px;
+      }
+
+      .kicker {
+        color: var(--accent);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: 13px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 10px 0 8px;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 1.05;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 19px;
+        line-height: 1.7;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 22px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .panel {
+        border: 1px solid rgba(72, 101, 79, 0.22);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.68);
+        box-shadow: 0 24px 50px rgba(39, 64, 51, 0.1);
+        padding: 20px;
+      }
+
+      .panel h2 {
+        margin: 0 0 8px;
+        font-size: 25px;
+      }
+
+      .panel p {
+        margin: 0 0 16px;
+        color: var(--muted);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .phone {
+        width: 300px;
+        height: 640px;
+        margin: 0 auto;
+        border: 10px solid #1b241e;
+        border-radius: 38px;
+        background: var(--paper);
+        overflow: hidden;
+        box-shadow: 0 20px 42px rgba(20, 33, 25, 0.18);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+
+      .screen {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px;
+        overflow: hidden;
+      }
+
+      .top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .small {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .title {
+        font-family: "Songti SC", serif;
+        font-size: 21px;
+        font-weight: 800;
+        line-height: 1.18;
+      }
+
+      .pill {
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: var(--soft);
+        color: var(--accent-deep);
+        padding: 7px 10px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: rgba(255, 255, 255, 0.84);
+        padding: 12px;
+      }
+
+      .passage {
+        max-height: 138px;
+        overflow: hidden;
+        background: var(--soft);
+        color: #435246;
+        line-height: 1.65;
+        font-size: 14px;
+      }
+
+      .question {
+        font-family: "Songti SC", serif;
+        font-size: 19px;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+
+      .choice {
+        display: flex;
+        gap: 9px;
+        align-items: flex-start;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: white;
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .choice strong {
+        color: var(--accent-deep);
+      }
+
+      .choice.selected {
+        border-color: var(--accent);
+        background: #edf4ef;
+      }
+
+      .choice.correct {
+        border-color: rgba(61, 108, 74, 0.64);
+        background: var(--success-bg);
+        color: var(--success);
+      }
+
+      .choice.wrong {
+        border-color: rgba(162, 90, 83, 0.5);
+        background: var(--error-bg);
+        color: var(--error);
+      }
+
+      .primary {
+        min-height: 46px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        background: var(--accent);
+        color: white;
+        font-weight: 800;
+        box-shadow: 0 14px 24px rgba(39, 64, 51, 0.18);
+      }
+
+      .bottom {
+        margin-top: auto;
+        border-top: 1px solid var(--line);
+        padding-top: 8px;
+      }
+
+      .bottom-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .tool {
+        min-height: 40px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .tool.active {
+        background: #dceee2;
+        color: var(--accent-deep);
+        font-weight: 800;
+      }
+
+      .tool.teal {
+        color: var(--teal);
+        font-weight: 800;
+      }
+
+      .feedback {
+        border-radius: 14px;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .feedback.correct {
+        background: #edf7ef;
+        color: #315f40;
+      }
+
+      .feedback.wrong {
+        background: #fbefed;
+        color: #9c4f49;
+      }
+
+      .queue {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .tag {
+        border-radius: 999px;
+        background: rgba(72, 101, 79, 0.1);
+        color: var(--accent);
+        padding: 6px 9px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .drawer {
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: rgba(255, 255, 255, 0.92);
+        padding: 12px;
+      }
+
+      .q-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+
+      .q {
+        aspect-ratio: 1 / 1;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(72, 101, 79, 0.28);
+        color: var(--accent-deep);
+        font-weight: 800;
+      }
+
+      .q.current {
+        background: var(--accent);
+        color: white;
+      }
+
+      .q.good {
+        background: var(--success-bg);
+        color: var(--success);
+      }
+
+      .q.bad {
+        background: var(--error-bg);
+        color: var(--error);
+      }
+
+      @media (max-width: 980px) {
+        body {
+          padding: 20px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .phone {
+          width: min(300px, 100%);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="kicker">Mobile Web Option C</div>
+      <h1>手机端采用底部工具栏</h1>
+      <p class="subtitle">核心思路：主内容专心阅读和选择，底部固定承载目录、计时、收藏、退出等工具，右下保持 Suivant。</p>
+    </header>
+
+    <main class="grid">
+      <section class="panel">
+        <h2>1. 做题态</h2>
+        <p>题目、正文、选项纵向排列；Suivant 是主操作；目录、计时、收藏、退出固定到底部工具区。</p>
+        <div class="phone">
+          <div class="screen">
+            <div class="top">
+              <div>
+                <div class="small">TCF 阅读真题 01</div>
+                <div class="title">第 1 / 39 题</div>
+              </div>
+              <div class="pill">59:18</div>
+            </div>
+            <div class="card question">Qu'est-ce que Patrick fait chez Louise ?</div>
+            <div class="card passage">Maman. Je fais mes devoirs de mathématiques chez Louise. Je rentre à 21 heures. Bises et à ce soir.</div>
+            <div class="choice selected"><strong>A</strong><span>Il dort.</span></div>
+            <div class="choice"><strong>B</strong><span>Il travaille.</span></div>
+            <div class="choice"><strong>C</strong><span>Il joue.</span></div>
+            <div class="choice"><strong>D</strong><span>Il mange.</span></div>
+            <div class="primary">Suivant</div>
+            <div class="bottom">
+              <div class="bottom-grid">
+                <div class="tool active">目录</div>
+                <div class="tool">59:18</div>
+                <div class="tool teal">收藏</div>
+                <div class="tool">退出</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>2. 复盘态</h2>
+        <p>选项颜色沿用当前桌面复盘规则；底部目录入口打开后可用红/绿区分正确和错误。</p>
+        <div class="phone">
+          <div class="screen">
+            <div class="top">
+              <div>
+                <div class="small">TCF 阅读真题 01</div>
+                <div class="title">复盘 第 2 / 39 题</div>
+              </div>
+              <div class="pill">已提交</div>
+            </div>
+            <div class="feedback wrong">回答错误，正确答案为 B</div>
+            <div class="card question">Qu'est-ce que Patrick fait chez Louise ?</div>
+            <div class="choice wrong"><strong>A</strong><span>Il dort.</span></div>
+            <div class="choice correct"><strong>B</strong><span>Il travaille.</span></div>
+            <div class="choice"><strong>C</strong><span>Il joue.</span></div>
+            <div class="choice"><strong>D</strong><span>Il mange.</span></div>
+            <div class="drawer">
+              <div class="small" style="margin-bottom: 8px;">题目目录</div>
+              <div class="q-grid">
+                <div class="q good">01</div>
+                <div class="q bad current">02</div>
+                <div class="q bad">03</div>
+                <div class="q good">04</div>
+                <div class="q">05</div>
+              </div>
+            </div>
+            <div class="bottom">
+              <div class="bottom-grid">
+                <div class="tool active">目录</div>
+                <div class="tool">结果</div>
+                <div class="tool teal">已收藏</div>
+                <div class="tool">退出</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>3. 错题/收藏练习态</h2>
+        <p>顶部显示当前复习队列进度；选择选项后立即反馈；底部保留返回列表、筛选、收藏等辅助操作。</p>
+        <div class="phone">
+          <div class="screen">
+            <div class="queue">
+              <div>
+                <div class="small">Revision concentrée</div>
+                <div class="title">第 1 / 18 题</div>
+              </div>
+              <div class="tag">A1</div>
+            </div>
+            <div class="feedback correct">回答正确</div>
+            <div class="card question">Qu'est-ce que Patrick fait chez Louise ?</div>
+            <div class="card passage">Maman. Je fais mes devoirs de mathématiques chez Louise...</div>
+            <div class="choice"><strong>A</strong><span>Il dort.</span></div>
+            <div class="choice correct"><strong>B</strong><span>Il travaille.</span></div>
+            <div class="choice"><strong>C</strong><span>Il joue.</span></div>
+            <div class="choice"><strong>D</strong><span>Il mange.</span></div>
+            <div class="primary">Suivant</div>
+            <div class="bottom">
+              <div class="bottom-grid">
+                <div class="tool">列表</div>
+                <div class="tool active">筛选</div>
+                <div class="tool teal">已收藏</div>
+                <div class="tool">退出</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
