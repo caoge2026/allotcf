@@ -1,3 +1,4 @@
+import { practiceStorageKey } from '../../utils/practicePersistence'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -98,7 +99,7 @@ describe('ExamSetListPage', () => {
 
   it('marks exam sets with saved draft as continue practice', async () => {
     localStorage.setItem(
-      'practice-exam-set-1-draft',
+      practiceStorageKey('practice-exam-set-1-draft'),
       JSON.stringify({
         startedAt: Date.now(),
         currentIndex: 3,
@@ -170,7 +171,7 @@ describe('ExamSetListPage', () => {
     fireEvent.click(screen.getByRole('button', { name: '继续作答' }))
 
     expect(await screen.findByText('练习页')).toBeInTheDocument()
-    expect(JSON.parse(localStorage.getItem('practice-exam-set-1-draft') ?? 'null')).toMatchObject({
+    expect(JSON.parse(localStorage.getItem(practiceStorageKey('practice-exam-set-1-draft')) ?? 'null')).toMatchObject({
       currentIndex: 10,
       pausedRemainingSeconds: 2400,
       answers: { 101: { answer: 'B', timeSpent: 12 } },
@@ -179,7 +180,7 @@ describe('ExamSetListPage', () => {
 
   it('opens a discard-progress dialog for resumed exam sets', async () => {
     localStorage.setItem(
-      'practice-exam-set-1-draft',
+      practiceStorageKey('practice-exam-set-1-draft'),
       JSON.stringify({
         startedAt: Date.now(),
         currentIndex: 3,
@@ -212,7 +213,7 @@ describe('ExamSetListPage', () => {
 
   it('clears the saved draft and starts a new practice after discard confirmation', async () => {
     localStorage.setItem(
-      'practice-exam-set-1-draft',
+      practiceStorageKey('practice-exam-set-1-draft'),
       JSON.stringify({
         startedAt: Date.now(),
         currentIndex: 3,
@@ -247,7 +248,7 @@ describe('ExamSetListPage', () => {
     await waitFor(() => {
       expect(startSpy).toHaveBeenCalledWith(1)
     })
-    expect(localStorage.getItem('practice-exam-set-1-draft')).toBeNull()
+    expect(localStorage.getItem(practiceStorageKey('practice-exam-set-1-draft'))).toBeNull()
     expect(await screen.findByText('新练习页')).toBeInTheDocument()
   })
 
@@ -281,7 +282,7 @@ describe('ExamSetListPage', () => {
 
   it('marks completed exam sets as available for another attempt', async () => {
     localStorage.setItem(
-      'practice-exam-set-1-completed',
+      practiceStorageKey('practice-exam-set-1-completed'),
       JSON.stringify({
         completedAt: Date.now(),
         sessionId: 88,
@@ -315,7 +316,7 @@ describe('ExamSetListPage', () => {
 
   it('opens the saved review session instead of starting a new practice', async () => {
     localStorage.setItem(
-      'practice-exam-set-1-completed',
+      practiceStorageKey('practice-exam-set-1-completed'),
       JSON.stringify({
         completedAt: Date.now(),
         sessionId: 88,
@@ -354,7 +355,7 @@ describe('ExamSetListPage', () => {
 
   it('keeps completed state as view review even if a stale draft exists', async () => {
     localStorage.setItem(
-      'practice-exam-set-1-completed',
+      practiceStorageKey('practice-exam-set-1-completed'),
       JSON.stringify({
         completedAt: Date.now(),
         sessionId: 88,
@@ -363,7 +364,7 @@ describe('ExamSetListPage', () => {
       }),
     )
     localStorage.setItem(
-      'practice-exam-set-1-draft',
+      practiceStorageKey('practice-exam-set-1-draft'),
       JSON.stringify({
         startedAt: Date.now(),
         currentIndex: 2,
@@ -395,7 +396,7 @@ describe('ExamSetListPage', () => {
   it('prefers continue practice when a newer draft exists after completion', async () => {
     const completedAt = Date.now() - 10 * 60 * 1000
     localStorage.setItem(
-      'practice-exam-set-1-completed',
+      practiceStorageKey('practice-exam-set-1-completed'),
       JSON.stringify({
         completedAt,
         sessionId: 88,
@@ -404,7 +405,7 @@ describe('ExamSetListPage', () => {
       }),
     )
     localStorage.setItem(
-      'practice-exam-set-1-draft',
+      practiceStorageKey('practice-exam-set-1-draft'),
       JSON.stringify({
         startedAt: completedAt + 5 * 60 * 1000,
         currentIndex: 4,

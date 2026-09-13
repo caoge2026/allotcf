@@ -10,10 +10,14 @@ export default function ResultPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getPracticeResult(Number(id)).then((data) => {
-      setResult(data)
-      setLoading(false)
-    })
+    let active = true
+    setResult(null)
+    setLoading(true)
+    getPracticeResult(Number(id))
+      .then((data) => { if (active) setResult(data) })
+      .catch(() => { if (active) setResult(null) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
   }, [id])
 
   if (loading) {
@@ -21,10 +25,13 @@ export default function ResultPage() {
   }
 
   if (!result) {
-    return null
+    return <div className="app-shell"><section className="page-panel">
+      <p role="alert">无法查看这条记录。记录可能不存在、无权访问，或暂时无法加载。</p>
+      <button className="primary-button" onClick={() => navigate('/exam-sets')}>返回我的练习</button>
+    </section></div>
   }
 
-  const pct = Math.round((result.correctCount / result.totalCount) * 100)
+  const pct = Math.round((result.totalCount > 0 ? result.correctCount / result.totalCount : 0) * 100)
 
   return (
     <div className="app-shell result-layout">

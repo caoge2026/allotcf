@@ -70,7 +70,7 @@ class PracticeServiceTest {
         Question q1 = mockQuestion(1L, "A");
         Question q2 = mockQuestion(2L, "B");
 
-        when(practiceSessionRepository.findById(1L)).thenReturn(Optional.of(session));
+        when(practiceSessionRepository.findByIdAndUserId(1L, 901L)).thenReturn(Optional.of(session));
         when(questionRepository.findById(1L)).thenReturn(Optional.of(q1));
         when(questionRepository.findById(2L)).thenReturn(Optional.of(q2));
         when(answerRecordRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -85,7 +85,7 @@ class PracticeServiceTest {
             new AnswerItem(2L, "C", 8)
         ));
 
-        PracticeResultDto result = practiceService.submit(1L, request);
+        PracticeResultDto result = practiceService.submit(1L, request, 901L);
 
         assertThat(result.getCorrectCount()).isEqualTo(1);
         assertThat(result.getTotalCount()).isEqualTo(2);
@@ -105,7 +105,7 @@ class PracticeServiceTest {
         Question q30 = mockQuestion(30L, 30, "A");
         Question q36 = mockQuestion(36L, 36, "B");
 
-        when(practiceSessionRepository.findById(1L)).thenReturn(Optional.of(session));
+        when(practiceSessionRepository.findByIdAndUserId(1L, 901L)).thenReturn(Optional.of(session));
         when(questionRepository.findById(1L)).thenReturn(Optional.of(q1));
         when(questionRepository.findById(5L)).thenReturn(Optional.of(q5));
         when(questionRepository.findById(11L)).thenReturn(Optional.of(q11));
@@ -126,7 +126,7 @@ class PracticeServiceTest {
             new AnswerItem(36L, "B", 5)
         ));
 
-        PracticeResultDto result = practiceService.submit(1L, request);
+        PracticeResultDto result = practiceService.submit(1L, request, 901L);
 
         assertThat(result.getScore()).isEqualTo(107);
         assertThat(result.getNclcLevelLabel()).isEqualTo("CLB/NCLC 4 以下");
@@ -149,7 +149,7 @@ class PracticeServiceTest {
         when(canonicalQuestion.getId()).thenReturn(1002L);
         bookmark.setCanonicalQuestion(canonicalQuestion);
 
-        when(practiceSessionRepository.findById(1L)).thenReturn(Optional.of(session));
+        when(practiceSessionRepository.findByIdAndUserId(1L, 901L)).thenReturn(Optional.of(session));
         when(questionRepository.findById(2L)).thenReturn(Optional.of(question));
         when(answerRecordRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(practiceSessionRepository.save(any())).thenReturn(session);
@@ -161,7 +161,7 @@ class PracticeServiceTest {
         SubmitRequest request = new SubmitRequest();
         request.setAnswers(List.of(new AnswerItem(2L, "A", 8)));
 
-        PracticeResultDto result = practiceService.submit(1L, request);
+        PracticeResultDto result = practiceService.submit(1L, request, 901L);
 
         assertThat(result.getDetails()).hasSize(1);
         assertThat(result.getDetails().get(0).getQuestionText()).isEqualTo("题干 2");
@@ -184,7 +184,7 @@ class PracticeServiceTest {
 
         Question question = mockQuestion(2L, 2, "B");
 
-        when(practiceSessionRepository.findById(1L)).thenReturn(Optional.of(session));
+        when(practiceSessionRepository.findByIdAndUserId(1L, 901L)).thenReturn(Optional.of(session));
         when(questionRepository.findById(2L)).thenReturn(Optional.of(question));
         when(answerRecordRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(practiceSessionRepository.save(any())).thenReturn(session);
@@ -193,7 +193,7 @@ class PracticeServiceTest {
         SubmitRequest request = new SubmitRequest();
         request.setAnswers(List.of(new AnswerItem(2L, "", 0)));
 
-        PracticeResultDto result = practiceService.submit(1L, request);
+        PracticeResultDto result = practiceService.submit(1L, request, 901L);
 
         assertThat(result.getDetails()).hasSize(1);
         assertThat(result.getDetails().get(0).getUserAnswer()).isEmpty();
@@ -212,7 +212,7 @@ class PracticeServiceTest {
         session.setExamSet(examSet);
 
         when(examSet.getQuestions()).thenReturn(List.of(question1, question2));
-        when(practiceSessionRepository.findById(7L)).thenReturn(Optional.of(session));
+        when(practiceSessionRepository.findByIdAndUserId(7L, 901L)).thenReturn(Optional.of(session));
         when(userExamSetProgressRepository.findByUserIdAndExamSetId(user.getId(), examSet.getId()))
             .thenReturn(Optional.empty());
         when(userExamSetProgressRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -222,7 +222,7 @@ class PracticeServiceTest {
         request.setPausedRemainingSeconds(2500);
         request.setAnswers(List.of(new AnswerItem(1L, "A", 12)));
 
-        UserExamSetProgress progress = practiceService.saveProgress(7L, request);
+        UserExamSetProgress progress = practiceService.saveProgress(7L, request, 901L);
 
         assertThat(progress.getStatus()).isEqualTo("IN_PROGRESS");
         assertThat(progress.getCurrentIndex()).isEqualTo(10);

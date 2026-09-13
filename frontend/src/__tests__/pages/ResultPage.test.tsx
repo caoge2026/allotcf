@@ -60,4 +60,12 @@ describe('ResultPage', () => {
       expect(screen.getByText(/CLB\/NCLC 7/)).toBeInTheDocument()
     })
   })
+  it('shows a recoverable message when a record is forbidden or unavailable', async () => {
+    vi.spyOn(practiceService, 'getPracticeResult').mockRejectedValue({ response: { status: 404 } })
+    renderResult()
+    expect(await screen.findByRole('alert')).toHaveTextContent('无法查看这条记录')
+    expect(screen.queryByText('加载中...')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '返回我的练习' })).toBeInTheDocument()
+  })
+
 })

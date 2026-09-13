@@ -1,3 +1,4 @@
+import { practiceStorageKey } from '../../utils/practicePersistence'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -325,7 +326,7 @@ describe('PracticePage', () => {
     renderPracticeReview(88, 10)
 
     expect(await screen.findByText('复盘第 1 题 / 共 2 题')).toBeInTheDocument()
-    expect(localStorage.getItem('practice-exam-set-10-draft')).toBeNull()
+    expect(localStorage.getItem(practiceStorageKey('practice-exam-set-10-draft'))).toBeNull()
   })
 
   it('leaves review mode after clicking restart practice', async () => {
@@ -417,8 +418,8 @@ describe('PracticePage', () => {
   })
 
   it('restores examSetId from localStorage when page reloads without route state', async () => {
-    localStorage.setItem('practice-session-7-exam-set-id', '10')
-    localStorage.setItem('practice-session-7-started-at', String(Date.now()))
+    localStorage.setItem(practiceStorageKey('practice-session-7-exam-set-id'), '10')
+    localStorage.setItem(practiceStorageKey('practice-session-7-started-at'), String(Date.now()))
 
     renderPracticeWithoutState()
 
@@ -430,10 +431,10 @@ describe('PracticePage', () => {
   })
 
   it('restores saved draft answers from localStorage after reload', async () => {
-    localStorage.setItem('practice-session-7-exam-set-id', '10')
-    localStorage.setItem('practice-session-7-started-at', String(Date.now()))
+    localStorage.setItem(practiceStorageKey('practice-session-7-exam-set-id'), '10')
+    localStorage.setItem(practiceStorageKey('practice-session-7-started-at'), String(Date.now()))
     localStorage.setItem(
-      'practice-session-7-answers',
+      practiceStorageKey('practice-session-7-answers'),
       JSON.stringify({ 1: { answer: 'B', timeSpent: 12 } }),
     )
 
@@ -448,7 +449,7 @@ describe('PracticePage', () => {
 
   it('restores saved progress when re-entering the same exam set with a new session id', async () => {
     localStorage.setItem(
-      'practice-exam-set-10-draft',
+      practiceStorageKey('practice-exam-set-10-draft'),
       JSON.stringify({
         startedAt: Date.now() - 3 * 60 * 1000,
         currentIndex: 1,
@@ -470,8 +471,8 @@ describe('PracticePage', () => {
 
   it('shows remaining time based on persisted start time', async () => {
     const now = Date.now()
-    localStorage.setItem('practice-session-7-exam-set-id', '10')
-    localStorage.setItem('practice-session-7-started-at', String(now - 5 * 60 * 1000))
+    localStorage.setItem(practiceStorageKey('practice-session-7-exam-set-id'), '10')
+    localStorage.setItem(practiceStorageKey('practice-session-7-started-at'), String(now - 5 * 60 * 1000))
 
     renderPracticeWithoutState()
 
@@ -526,7 +527,7 @@ describe('PracticePage', () => {
       answers: { 1: { answer: 'B', timeSpent: 12 } },
       pausedRemainingSeconds: 3300,
     }
-    localStorage.setItem('practice-exam-set-10-draft', JSON.stringify(originalDraft))
+    localStorage.setItem(practiceStorageKey('practice-exam-set-10-draft'), JSON.stringify(originalDraft))
 
     renderPractice(7, 10)
 
@@ -538,14 +539,14 @@ describe('PracticePage', () => {
     fireEvent.click(screen.getByRole('button', { name: '不保存并退出' }))
 
     expect(screen.getByText('题库页')).toBeInTheDocument()
-    expect(JSON.parse(localStorage.getItem('practice-exam-set-10-draft') ?? 'null')).toEqual(originalDraft)
+    expect(JSON.parse(localStorage.getItem(practiceStorageKey('practice-exam-set-10-draft')) ?? 'null')).toEqual(originalDraft)
   })
 
   it('auto-submits when time runs out', async () => {
     const submitSpy = vi.spyOn(practiceService, 'submitPractice')
     const now = Date.now()
-    localStorage.setItem('practice-session-7-exam-set-id', '10')
-    localStorage.setItem('practice-session-7-started-at', String(now - 59 * 60 * 1000 - 59 * 1000))
+    localStorage.setItem(practiceStorageKey('practice-session-7-exam-set-id'), '10')
+    localStorage.setItem(practiceStorageKey('practice-session-7-started-at'), String(now - 59 * 60 * 1000 - 59 * 1000))
 
     renderPracticeWithoutState()
 
@@ -580,7 +581,7 @@ describe('PracticePage', () => {
     fireEvent.click(screen.getByRole('button', { name: '不保存并退出' }))
 
     expect(await screen.findByText('题库页')).toBeInTheDocument()
-    expect(localStorage.getItem('practice-exam-set-10-draft')).toBeNull()
+    expect(localStorage.getItem(practiceStorageKey('practice-exam-set-10-draft'))).toBeNull()
   })
 
   it('keeps the user on the page when closing the custom exit dialog', async () => {

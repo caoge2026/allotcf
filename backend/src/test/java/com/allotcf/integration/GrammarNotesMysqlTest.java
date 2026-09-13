@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @EnabledIfEnvironmentVariable(
   named = "ALLOTCF_TEST_MYSQL_URL",
-  matches = "jdbc:mysql://127\\.0\\.0\\.1:13377/allotcf_test(?:\\?.*)?"
+  matches = "jdbc:mysql://127\\.0\\.0\\.1:13377/allotcf_(?:test|permissions_test)(?:\\?.*)?"
 )
 @SpringBootTest(
   properties = {
@@ -294,4 +294,47 @@ class GrammarNotesMysqlTest {
       )
       .andExpect(status().isBadRequest());
   }
+  @Test
+  void learner_can_read_published_notes_but_cannot_self_assign_author_or_publish() throws Exception {
+    var note = notes.create(901, draft("Public lesson", 0));
+    notes.publish(note.id(), 901, action(note));
+    mvc.perform(get("/grammar/" + note.slug()).header("Authorization", token("learner")))
+      .andExpect(status().isOk());
+    mvc.perform(post("/api/manage/grammar-notes/" + note.id() + "/publish")
+      .header("Authorization", token("learner")).contentType("application/json")
+      .content("{\"expectedVersion\":0,\"revisionId\":1}"))
+      .andExpect(status().isForbidden());
+    mvc.perform(post("/api/auth/register").contentType("application/json")
+      .content("{\"email\":\"new@example.test\",\"password\":\"test-password\",\"nickname\":\"Learner\",\"role\":\"AUTHOR\"}"))
+      .andExpect(status().is2xxSuccessful());
+    assertThat(jdbc.queryForObject("SELECT role FROM users WHERE email='new@example.test'", String.class)).isEqualTo("LEARNER");
+  }
+
+  @Test
+  void practice_result_progress_and_submission_are_scoped_to_the_logged_in_owner() throws Exception {
+    jdbc.update("INSERT INTO exam_set(id,title,type) VALUES(400,'Ownership fixture','READING')");
+    jdbc.update("INSERT INTO practice_session(id,user_id,exam_set_id,total_count,correct_count) VALUES(500,903,400,0,0)");
+    mvc.perform(get("/api/practice-sessions/500/result").header("Authorization", token("learner")))
+      .andExpect(status().isOk());
+    mvc.perform(get("/api/practice-sessions/500/result").header("Authorization", token("author")))
+      .andExpect(status().isNotFound());
+    for (String action : List.of("progress", "submit")) {
+      mvc.perform(post("/api/practice-sessions/500/" + action)
+        .header("Authorization", token("author")).contentType("application/json")
+        .content("{\"answers\":[],\"currentIndex\":0}"))
+        .andExpect(status().isNotFound());
+    }
+    assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM user_exam_set_progress", Integer.class)).isZero();
+    assertThat(jdbc.queryForObject("SELECT finished_at FROM practice_session WHERE id=500", Object.class)).isNull();
+    mvc.perform(post("/api/practice-sessions/500/progress")
+      .header("Authorization", token("learner")).contentType("application/json")
+      .content("{\"answers\":[],\"currentIndex\":0}"))
+      .andExpect(status().isOk());
+    mvc.perform(post("/api/practice-sessions/500/submit")
+      .header("Authorization", token("learner")).contentType("application/json")
+      .content("{\"answers\":[]}"))
+      .andExpect(status().isOk());
+    assertThat(jdbc.queryForObject("SELECT user_id FROM user_exam_set_progress WHERE latest_session_id=500", Long.class)).isEqualTo(903L);
+  }
+
 }
