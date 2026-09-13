@@ -30,7 +30,11 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/", "/grammar", "/grammar/**", "/content-assets/**", "/sitemap.xml", "/api/public/grammar-notes/**", "/api/public/grammar-topics").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.HEAD, "/", "/grammar", "/grammar/**", "/content-assets/**", "/sitemap.xml").permitAll()
+                .requestMatchers("/api/manage/**").hasRole("AUTHOR")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

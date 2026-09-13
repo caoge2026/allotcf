@@ -43,7 +43,7 @@ describe('LoginPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '打开收藏练习' }))
 
-    expect(screen.getByText(/想进入「收藏练习」的话，请先登录/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '使用访客预览进入完整功能' })).toBeInTheDocument()
   })
 
   it('calls login on submit', async () => {
@@ -95,6 +95,17 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: '打开收藏练习' }))
 
     expect(await screen.findByText('收藏练习页')).toBeInTheDocument()
+  })
+
+  it('returns an author to the requested notes editor after login', async () => {
+    vi.spyOn(authService, 'login').mockResolvedValue({ token: 'tok', email: 'author@example.test', nickname: 'Author', userType: 'REGISTERED' })
+    render(<MemoryRouter initialEntries={[{ pathname: '/login', state: { from: '/manage/grammar/12' } }]}>
+      <Routes><Route path="/login" element={<LoginPage />} /><Route path="/manage/grammar/:id" element={<div>笔记编辑页</div>} /></Routes>
+    </MemoryRouter>)
+    fireEvent.change(screen.getByPlaceholderText(/邮箱/i), { target: { value: 'author@example.test' } })
+    fireEvent.change(screen.getByPlaceholderText(/密码/i), { target: { value: 'password123' } })
+    fireEvent.click(screen.getByRole('button', { name: '登录' }))
+    expect(await screen.findByText('笔记编辑页')).toBeInTheDocument()
   })
 
   it('starts guest preview from login page', async () => {

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${note.title + ' · AllôTCF'}"></title>
+    <meta name="description" th:content="${note.summary}" />
+    <link rel="canonical" th:href="${base + '/grammar/' + note.slug}" />
+    <link rel="stylesheet" href="/content-assets/notes.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">AllôTCF.</a>
+      <nav>
+        <a href="/grammar">全部笔记</a><a href="/exam-sets">阅读练习</a>
+      </nav>
+    </header>
+    <main>
+      <article class="reading">
+        <p class="eyebrow">Carnet de grammaire</p>
+        <h1 th:text="${note.title}"></h1>
+        <span
+          class="tag"
+          th:if="${!note.level.isEmpty()}"
+          th:text="${note.level}"
+        ></span>
+        <p class="intro" th:text="${note.summary}"></p>
+        <div class="prose" th:utext="${note.html}"></div>
+      </article>
+    </main>
+    <footer>个人学习笔记 · <a href="/grammar">继续阅读其他笔记</a></footer>
+  </body>
+</html>

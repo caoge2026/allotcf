@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>语法学习笔记 · AllôTCF</title>
+    <meta
+      name="description"
+      content="系统学习法语过程中的语法笔记、例句与思考。"
+    />
+    <link rel="stylesheet" href="/content-assets/notes.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">AllôTCF.</a>
+      <nav>
+        <a href="/exam-sets">阅读练习</a><a href="/manage/grammar">我的笔记</a>
+      </nav>
+    </header>
+    <main>
+      <p class="eyebrow">Carnet de grammaire</p>
+      <h1>语法学习笔记</h1>
+      <p class="intro">把学过的规则，用自己的话再说一遍。</p>
+      <form class="filters" action="/grammar">
+        <label for="topic">主题</label
+        ><select id="topic" name="topic">
+          <option value="">全部主题</option>
+          <option
+            th:each="topic : ${topics}"
+            th:value="${topic.id}"
+            th:text="${topic.name}"
+            th:selected="${topic.id == selectedTopic}"
+          ></option></select
+        ><button>筛选</button>
+      </form>
+      <p class="empty" th:if="${listing.items.isEmpty()}">
+        这里还没有公开笔记，新的学习记录正在整理中。
+      </p>
+      <div class="cards">
+        <article class="card" th:each="note : ${listing.items}">
+          <span
+            class="tag"
+            th:text="${note.level.isEmpty() ? '语法笔记' : note.level}"
+          ></span>
+          <h2>
+            <a
+              th:href="@{/grammar/{slug}(slug=${note.slug})}"
+              th:text="${note.title}"
+            ></a>
+          </h2>
+          <p th:text="${note.summary}"></p>
+        </article>
+      </div>
+      <nav class="pagination">
+        <a
+          th:if="${listing.page > 0}"
+          th:href="@{/grammar(page=${listing.page - 1},topic=${selectedTopic})}"
+          >← 上一页</a
+        ><a
+          th:if="${listing.hasMore}"
+          th:href="@{/grammar(page=${listing.page + 1},topic=${selectedTopic})}"
+          >下一页 →</a
+        >
+      </nav>
+    </main>
+    <footer>个人学习笔记 · 理解会在学习中不断更新。</footer>
+  </body>
+</html>

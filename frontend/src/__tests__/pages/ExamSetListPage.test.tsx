@@ -79,7 +79,8 @@ describe('ExamSetListPage', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByText(/加载中/i)).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('正在整理题库')
+    expect(screen.getAllByLabelText('题库加载占位卡片')).toHaveLength(10)
   })
 
   it('shows a visible error and stops loading when exam sets fail to load', async () => {

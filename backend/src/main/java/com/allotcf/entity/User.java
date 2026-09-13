@@ -43,6 +43,11 @@ public class User {
     @Column(name = "guest_expires_at")
     private LocalDateTime guestExpiresAt;
 
+    @Column(nullable = false, length = 20)
+    private String role = "LEARNER";
+
+    public String getRole() { return role; }
+
     public Long getId() {
         return id;
     }

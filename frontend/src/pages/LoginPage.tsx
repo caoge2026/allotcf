@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import allotcfLogo from '../assets/allotcf-logo.png'
+import FeatureAssistantDialog from '../features/site-guide/FeatureAssistantDialog'
 import { login, loginAsGuest } from '../services/authService'
 import { useUserStore } from '../stores/userStore'
 
@@ -80,8 +81,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [quickMenuHint, setQuickMenuHint] = useState('')
+  const [pendingFeature, setPendingFeature] = useState<string | null>(null)
   const [isGuestLoading, setIsGuestLoading] = useState(false)
+  const [assistantOpen, setAssistantOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const setUser = useUserStore((state) => state.setUser)
   const isLoggedIn = useUserStore((state) => state.isLoggedIn())
   const nickname = useUserStore((state) => state.nickname)
@@ -92,13 +96,15 @@ export default function LoginPage() {
       return
     }
 
-    setQuickMenuHint(`想进入「${label}」的话，请先登录，或使用访客预览进入完整功能。`)
+    setPendingFeature(label)
+    setQuickMenuHint('')
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError('')
     setQuickMenuHint('')
+    setPendingFeature(null)
 
     try {
       const response = await login(email, password)
@@ -107,6 +113,11 @@ export default function LoginPage() {
         guestActionCount: response.guestActionCount,
         guestActionLimit: response.guestActionLimit,
       })
+      const from = location.state?.from
+      if (typeof from === 'string' && /^\/manage\/grammar(?:\/\d+)?$/.test(from)) {
+        navigate(from, { replace: true })
+        return
+      }
       setQuickMenuHint('已登录。现在可以从左侧快捷功能区选择要进入的学习功能。')
     } catch (error) {
       setError(getLoginErrorMessage(error))
@@ -116,6 +127,7 @@ export default function LoginPage() {
   const handleGuestPreview = async () => {
     setError('')
     setQuickMenuHint('')
+    setPendingFeature(null)
     setIsGuestLoading(true)
 
     try {
@@ -125,7 +137,9 @@ export default function LoginPage() {
         guestActionCount: response.guestActionCount,
         guestActionLimit: response.guestActionLimit,
       })
-      setQuickMenuHint('已进入访客预览。现在可以从左侧快捷功能区选择要试用的功能。')
+      setQuickMenuHint(
+        '已进入访客预览。现在可以从左侧快捷功能区选择要试用的功能。',
+      )
     } catch (error) {
       setError(getLoginErrorMessage(error))
     } finally {
@@ -139,6 +153,24 @@ export default function LoginPage() {
         <div className="login-brand-mark" aria-label="AllôTCF">
           <img src={allotcfLogo} alt="AllôTCF" />
         </div>
+        {pendingFeature ? (
+          <p className="quick-menu-hint">
+            请先登录，或使用
+            <button
+              type="button"
+              className="quick-menu-hint-button"
+              onClick={handleGuestPreview}
+              disabled={isGuestLoading}
+              aria-label="使用访客预览进入完整功能"
+            >
+              {isGuestLoading ? '进入中...' : '访客预览'}
+            </button>
+            进入完整功能。
+          </p>
+        ) : null}
+        {quickMenuHint ? (
+          <p className="quick-menu-hint">{quickMenuHint}</p>
+        ) : null}
         <div className="quick-tile-grid" aria-label="快捷功能区">
           {quickMenus.map((menu) => (
             <button
@@ -154,8 +186,19 @@ export default function LoginPage() {
               <span className="quick-tile-detail">{menu.detail}</span>
             </button>
           ))}
+          <button
+            type="button"
+            className="quick-tile wide soft"
+            onClick={() => setAssistantOpen(true)}
+            aria-label="打开问询台"
+          >
+            <span className="quick-tile-icon">?</span>
+            <span className="quick-tile-label">问询台</span>
+            <span className="quick-tile-detail">
+              用自然语言询问功能位置和菜单用途
+            </span>
+          </button>
         </div>
-        {quickMenuHint ? <p className="quick-menu-hint">{quickMenuHint}</p> : null}
       </section>
 
       <section className="page-panel auth-card login-card">
@@ -163,11 +206,9 @@ export default function LoginPage() {
           <div>
             <div className="page-kicker">Connexion</div>
             <h2 className="question-title login-card-title">登录</h2>
-            <p className="login-card-copy">
-              {isLoggedIn
-                ? `${nickname || '你'} 已登录，请从左侧选择功能。`
-                : '登录后停留在本页，你可以再从左侧快捷功能区选择入口。'}
-            </p>
+            {isLoggedIn ? (
+              <p className="login-card-copy">{`${nickname || '你'} 已登录，请从左侧选择功能。`}</p>
+            ) : null}
           </div>
         </div>
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -204,8 +245,15 @@ export default function LoginPage() {
             {isGuestLoading ? '正在进入访客预览' : '访客预览'}
           </button>
           <Link to="/register">注册账号</Link>
+          <span className="login-support-inline">
+            支持：support@allotcf.com
+          </span>
         </div>
       </section>
+      <FeatureAssistantDialog
+        open={assistantOpen}
+        onClose={() => setAssistantOpen(false)}
+      />
     </div>
   )
 }

@@ -16,7 +16,7 @@ const mockResult = {
     { questionId: 1, userAnswer: 'A', correctAnswer: 'A', isCorrect: true },
     { questionId: 2, userAnswer: 'B', correctAnswer: 'C', isCorrect: false },
     { questionId: 3, userAnswer: 'D', correctAnswer: 'D', isCorrect: true },
-  ],
+  ].map((detail) => ({...detail,canonicalQuestionId:detail.questionId,sequenceOrder:detail.questionId,questionNo:String(detail.questionId),passage:'',questionText:'Question',optionA:'A',optionB:'B',optionC:'C',optionD:'D',isBookmarked:false})),
 }
 
 const renderResult = () => render(

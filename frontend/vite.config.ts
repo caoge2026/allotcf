@@ -1,11 +1,13 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:8080',
+      '/api': process.env.ALLOTCF_DEV_BACKEND || 'http://localhost:8080',
+      '^/(grammar(?:/|$)|content-assets/|sitemap\\.xml$|$)':
+        process.env.ALLOTCF_DEV_BACKEND || 'http://localhost:8080',
     },
   },
   test: {

@@ -78,8 +78,8 @@ export interface WrongQuestionListItem {
   correctAnswer: string
   difficultyLevel: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
   wrongCount: number
-  lastWrongAt: string
-  lastUserAnswer: string
+  lastWrongAt: string | null
+  lastUserAnswer: string | null
   reviewStage?: number
   nextReviewAt?: string | null
   dueStatus?: 'OVERDUE' | 'DUE_TODAY' | 'UPCOMING' | 'UNSCHEDULED'
