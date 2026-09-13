@@ -4,6 +4,8 @@ import { usePracticeStore } from '../../stores/practiceStore'
 
 const mockQuestion = (id: number): Question => ({
   id,
+  canonicalQuestionId: id,
+  isBookmarked: false,
   sequenceOrder: id,
   questionNo: `${id}`,
   passage: 'passage',

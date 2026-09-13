@@ -1,3 +1,9 @@
+// Browser caches are account-specific; API ownership checks remain authoritative.
+export function practiceStorageKey(key: string) {
+  const account = localStorage.getItem('userEmail')?.trim().toLowerCase() || 'signed-out'
+  return `practice-v3-account:${encodeURIComponent(account)}:${key}`
+}
+
 interface StoredAnswerEntry {
   answer: string
   timeSpent: number
@@ -18,11 +24,11 @@ interface StoredPracticeCompletion {
 }
 
 export function examSetDraftStorageKey(examSetId: number) {
-  return `practice-exam-set-${examSetId}-draft`
+  return practiceStorageKey(`practice-exam-set-${examSetId}-draft`)
 }
 
 export function examSetCompletedStorageKey(examSetId: number) {
-  return `practice-exam-set-${examSetId}-completed`
+  return practiceStorageKey(`practice-exam-set-${examSetId}-completed`)
 }
 
 export function hasSavedDraft(examSetId: number) {

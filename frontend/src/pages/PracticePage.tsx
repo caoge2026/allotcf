@@ -1,3 +1,4 @@
+import { practiceStorageKey } from '../utils/practicePersistence'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import BookmarkToggle from '../components/BookmarkToggle'
@@ -27,15 +28,15 @@ interface StoredPracticeDraft {
 }
 
 function examSetStorageKey(sessionId: number) {
-  return `practice-session-${sessionId}-exam-set-id`
+  return practiceStorageKey(`practice-session-${sessionId}-exam-set-id`)
 }
 
 function startedAtStorageKey(sessionId: number) {
-  return `practice-session-${sessionId}-started-at`
+  return practiceStorageKey(`practice-session-${sessionId}-started-at`)
 }
 
 function answersStorageKey(sessionId: number) {
-  return `practice-session-${sessionId}-answers`
+  return practiceStorageKey(`practice-session-${sessionId}-answers`)
 }
 
 function isAnswerEntry(value: unknown): value is { answer: string; timeSpent: number } {

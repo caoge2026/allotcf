@@ -16,7 +16,7 @@ const mockResult = {
     { questionId: 1, userAnswer: 'A', correctAnswer: 'A', isCorrect: true },
     { questionId: 2, userAnswer: 'B', correctAnswer: 'C', isCorrect: false },
     { questionId: 3, userAnswer: 'D', correctAnswer: 'D', isCorrect: true },
-  ],
+  ].map((detail) => ({...detail,canonicalQuestionId:detail.questionId,sequenceOrder:detail.questionId,questionNo:String(detail.questionId),passage:'',questionText:'Question',optionA:'A',optionB:'B',optionC:'C',optionD:'D',isBookmarked:false})),
 }
 
 const renderResult = () => render(
@@ -60,4 +60,12 @@ describe('ResultPage', () => {
       expect(screen.getByText(/CLB\/NCLC 7/)).toBeInTheDocument()
     })
   })
+  it('shows a recoverable message when a record is forbidden or unavailable', async () => {
+    vi.spyOn(practiceService, 'getPracticeResult').mockRejectedValue({ response: { status: 404 } })
+    renderResult()
+    expect(await screen.findByRole('alert')).toHaveTextContent('无法查看这条记录')
+    expect(screen.queryByText('加载中...')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '返回我的练习' })).toBeInTheDocument()
+  })
+
 })

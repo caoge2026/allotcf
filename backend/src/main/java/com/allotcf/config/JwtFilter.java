@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 String email = jwtUtil.extractEmail(token);
                 userRepository.findByEmail(email).ifPresent(user -> {
                     UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(user, null, List.of());
+                        new UsernamePasswordAuthenticationToken(user, null, List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + user.getRole())));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 });
             }

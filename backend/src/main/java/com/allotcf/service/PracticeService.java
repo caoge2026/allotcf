@@ -74,9 +74,9 @@ public class PracticeService {
     }
 
     @Transactional
-    public PracticeResultDto submit(Long sessionId, SubmitRequest request) {
-        PracticeSession session = practiceSessionRepository.findById(sessionId)
-            .orElseThrow(() -> new IllegalArgumentException("练习不存在"));
+    public PracticeResultDto submit(Long sessionId, SubmitRequest request, Long userId) {
+        PracticeSession session = practiceSessionRepository.findByIdAndUserId(sessionId, userId)
+            .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "练习不存在"));
 
         List<QuestionResultDto> details = new ArrayList<>();
         int correct = 0;
@@ -127,9 +127,9 @@ public class PracticeService {
     }
 
     @Transactional
-    public UserExamSetProgress saveProgress(Long sessionId, SaveProgressRequest request) {
-        PracticeSession session = practiceSessionRepository.findById(sessionId)
-            .orElseThrow(() -> new IllegalArgumentException("练习不存在"));
+    public UserExamSetProgress saveProgress(Long sessionId, SaveProgressRequest request, Long userId) {
+        PracticeSession session = practiceSessionRepository.findByIdAndUserId(sessionId, userId)
+            .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "练习不存在"));
         List<AnswerItem> answers = request.getAnswers() == null ? List.of() : request.getAnswers();
         UserExamSetProgress progress = getOrCreateProgress(session.getUser(), session.getExamSet());
 
@@ -146,9 +146,10 @@ public class PracticeService {
         return userExamSetProgressRepository.save(progress);
     }
 
-    public PracticeResultDto getResult(Long sessionId) {
-        PracticeSession session = practiceSessionRepository.findById(sessionId)
-            .orElseThrow(() -> new IllegalArgumentException("练习不存在"));
+    @Transactional(readOnly = true)
+    public PracticeResultDto getResult(Long sessionId, Long userId) {
+        PracticeSession session = practiceSessionRepository.findByIdAndUserId(sessionId, userId)
+            .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "练习不存在"));
 
         List<AnswerRecord> answerRecords = answerRecordRepository.findByPracticeSessionId(sessionId);
         Set<Long> canonicalQuestionIds = answerRecords.stream()

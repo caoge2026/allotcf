@@ -4,9 +4,40 @@ import StudyTabs from '../components/StudyTabs'
 import { listExamSets } from '../services/examSetService'
 import { startPractice } from '../services/practiceService'
 import type { ExamSet } from '../types'
-import { clearExamSetDraft, examSetDraftStorageKey, readCompletedPractice, readSavedDraft } from '../utils/practicePersistence'
+import {
+  clearExamSetDraft,
+  examSetDraftStorageKey,
+  readCompletedPractice,
+  readSavedDraft,
+} from '../utils/practicePersistence'
 
 const PAGE_SIZE = 10
+
+function CatalogSkeleton() {
+  return (
+    <>
+      <div className="catalog-loading-note" role="status">
+        正在整理题库...
+      </div>
+      <div className="catalog-grid catalog-grid-skeleton" aria-busy="true">
+        {Array.from({ length: PAGE_SIZE }, (_, index) => (
+          <article
+            key={index}
+            className="catalog-card catalog-card-skeleton"
+            aria-label="题库加载占位卡片"
+          >
+            <div>
+              <span className="skeleton-line skeleton-kicker" />
+              <span className="skeleton-line skeleton-title" />
+              <span className="skeleton-line skeleton-meta" />
+            </div>
+            <span className="skeleton-button" />
+          </article>
+        ))}
+      </div>
+    </>
+  )
+}
 
 function seedDraftFromServerProgress(examSet: ExamSet) {
   if (!examSet.answersJson) {
@@ -19,13 +50,15 @@ function seedDraftFromServerProgress(examSet: ExamSet) {
       userAnswer?: string
       timeSpentSeconds?: number
     }>
-    const answers = parsed.reduce<Record<number, { answer: string; timeSpent: number }>>((acc, item) => {
+    const answers = parsed.reduce<
+      Record<number, { answer: string; timeSpent: number }>
+    >((acc, item) => {
       if (
         Number.isFinite(item.questionId) &&
         typeof item.userAnswer === 'string' &&
         item.userAnswer.trim() !== ''
       ) {
-        acc[item.questionId] = {
+        acc[item.questionId as number] = {
           answer: item.userAnswer,
           timeSpent: item.timeSpentSeconds ?? 0,
         }
@@ -52,7 +85,9 @@ export default function ExamSetListPage() {
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState<number | null>(null)
   const [page, setPage] = useState(1)
-  const [discardingExamSetId, setDiscardingExamSetId] = useState<number | null>(null)
+  const [discardingExamSetId, setDiscardingExamSetId] = useState<number | null>(
+    null,
+  )
   const [loadError, setLoadError] = useState('')
   const [startError, setStartError] = useState('')
   const navigate = useNavigate()
@@ -85,7 +120,9 @@ export default function ExamSetListPage() {
   }
 
   const handleViewReview = (sessionId: number, examSetId: number) => {
-    navigate(`/practice/${sessionId}`, { state: { examSetId, reviewMode: true } })
+    navigate(`/practice/${sessionId}`, {
+      state: { examSetId, reviewMode: true },
+    })
   }
 
   const handleOpenDiscardDialog = (examSetId: number) => {
@@ -106,125 +143,170 @@ export default function ExamSetListPage() {
     await handleStart(discardingExamSetId)
   }
 
-  if (loading) {
-    return <div className="loading-view">加载中...</div>
-  }
-
   const totalPages = Math.max(1, Math.ceil(examSets.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
-  const pagedExamSets = examSets.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const pagedExamSets = examSets.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  )
 
   return (
     <div className="app-shell">
       <section className="page-panel">
         <StudyTabs subject="reading" task="examSets" />
 
-        {loadError ? <div className="form-error catalog-start-error">{loadError}</div> : null}
-
-        {!loadError && examSets.length === 0 ? (
-          <div className="empty-view">暂无题库，稍后导入后这里会显示可练习的套题。</div>
+        {loadError ? (
+          <div className="form-error catalog-start-error">{loadError}</div>
         ) : null}
 
-        {startError ? <div className="form-error catalog-start-error">{startError}</div> : null}
+        {loading ? <CatalogSkeleton /> : null}
+        {!loading && !loadError && examSets.length === 0 ? (
+          <div className="empty-view">
+            暂无题库，稍后导入后这里会显示可练习的套题。
+          </div>
+        ) : null}
 
-        <div className="catalog-grid">
-          {pagedExamSets.map((examSet, index) => {
-            const absoluteIndex = (currentPage - 1) * PAGE_SIZE + index
-            const serverStatus = examSet.practiceStatus
-            const completion = serverStatus ? undefined : readCompletedPractice(examSet.id)
-            const draft = serverStatus ? undefined : readSavedDraft(examSet.id)
-            const hasNewerDraft =
-              completion !== undefined &&
-              draft !== undefined &&
-              draft.startedAt > completion.completedAt
-            const hasDraft = serverStatus === 'IN_PROGRESS' || (draft !== undefined && (completion === undefined || hasNewerDraft))
-            const isCompleted = serverStatus === 'COMPLETED' || (completion !== undefined && !hasDraft)
-            const resumeProgress = hasDraft
-              ? Math.min((examSet.currentIndex ?? draft?.currentIndex ?? 0) + 1, examSet.questionCount)
-              : null
+        {startError ? (
+          <div className="form-error catalog-start-error">{startError}</div>
+        ) : null}
 
-            return (
-              <article
-                key={examSet.id}
-                className={[
-                  'catalog-card',
-                  !hasDraft && !isCompleted ? 'catalog-card-fresh' : '',
-                  hasDraft ? 'catalog-card-resume' : '',
-                  isCompleted ? 'catalog-card-completed' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                <div>
-                  <div className="catalog-card-topline">
-                    <p className="page-kicker">Serie {String(absoluteIndex + 1).padStart(2, '0')}</p>
-                  </div>
-                  <div className="catalog-card-heading">
-                    <h2 className="catalog-card-title">{examSet.title}</h2>
-                    {isCompleted ? (
-                      <span className="catalog-status-badge completed">
-                        <span className="catalog-status-icon" aria-hidden="true">✓</span>
-                        <span>已完成，可查看最近一次复盘</span>
-                      </span>
+        {!loading && !loadError ? (
+          <div className="catalog-grid">
+            {pagedExamSets.map((examSet, index) => {
+              const absoluteIndex = (currentPage - 1) * PAGE_SIZE + index
+              const serverStatus = examSet.practiceStatus
+              const completion = serverStatus
+                ? undefined
+                : readCompletedPractice(examSet.id)
+              const draft = serverStatus
+                ? undefined
+                : readSavedDraft(examSet.id)
+              const hasNewerDraft =
+                completion !== undefined &&
+                draft !== undefined &&
+                draft.startedAt > completion.completedAt
+              const hasDraft =
+                serverStatus === 'IN_PROGRESS' ||
+                (draft !== undefined &&
+                  (completion === undefined || hasNewerDraft))
+              const isCompleted =
+                serverStatus === 'COMPLETED' ||
+                (completion !== undefined && !hasDraft)
+              const resumeProgress = hasDraft
+                ? Math.min(
+                    (examSet.currentIndex ?? draft?.currentIndex ?? 0) + 1,
+                    examSet.questionCount,
+                  )
+                : null
+
+              return (
+                <article
+                  key={examSet.id}
+                  className={[
+                    'catalog-card',
+                    !hasDraft && !isCompleted ? 'catalog-card-fresh' : '',
+                    hasDraft ? 'catalog-card-resume' : '',
+                    isCompleted ? 'catalog-card-completed' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  <div>
+                    <div className="catalog-card-topline">
+                      <p className="page-kicker">
+                        Serie {String(absoluteIndex + 1).padStart(2, '0')}
+                      </p>
+                    </div>
+                    <div className="catalog-card-heading">
+                      <h2 className="catalog-card-title">{examSet.title}</h2>
+                      {isCompleted ? (
+                        <span className="catalog-status-badge completed">
+                          <span
+                            className="catalog-status-icon"
+                            aria-hidden="true"
+                          >
+                            ✓
+                          </span>
+                          <span>已完成，可查看最近一次复盘</span>
+                        </span>
+                      ) : null}
+                    </div>
+                    {hasDraft && resumeProgress !== null ? (
+                      <p className="catalog-card-resume-note">
+                        上次进度 {resumeProgress}/{examSet.questionCount}
+                      </p>
+                    ) : null}
+                    {isCompleted &&
+                    completion?.score !== undefined &&
+                    completion?.nclcLevelLabel ? (
+                      <p className="catalog-card-completed-summary">
+                        上次得分 {completion.score} 分，
+                        {completion.nclcLevelLabel}
+                      </p>
+                    ) : null}
+                    {isCompleted &&
+                    serverStatus === 'COMPLETED' &&
+                    examSet.score !== null &&
+                    examSet.score !== undefined &&
+                    examSet.nclcLevelLabel ? (
+                      <p className="catalog-card-completed-summary">
+                        上次得分 {examSet.score} 分，{examSet.nclcLevelLabel}
+                      </p>
                     ) : null}
                   </div>
-                  {hasDraft && resumeProgress !== null ? (
-                    <p className="catalog-card-resume-note">上次进度 {resumeProgress}/{examSet.questionCount}</p>
-                  ) : null}
-                  {isCompleted && completion?.score !== undefined && completion?.nclcLevelLabel ? (
-                    <p className="catalog-card-completed-summary">
-                      上次得分 {completion.score} 分，{completion.nclcLevelLabel}
-                    </p>
-                  ) : null}
-                  {isCompleted && serverStatus === 'COMPLETED' && examSet.score !== null && examSet.score !== undefined && examSet.nclcLevelLabel ? (
-                    <p className="catalog-card-completed-summary">
-                      上次得分 {examSet.score} 分，{examSet.nclcLevelLabel}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="catalog-card-actions">
-                  <button
-                    className={[
-                      'chapter-button',
-                      hasDraft ? 'chapter-button-resume' : '',
-                      isCompleted ? 'chapter-button-completed' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    onClick={() => {
-                      const reviewSessionId = examSet.latestSessionId ?? completion?.sessionId
-                      if (isCompleted && reviewSessionId) {
-                        handleViewReview(reviewSessionId, examSet.id)
-                        return
-                      }
-                      if (hasDraft && examSet.latestSessionId) {
-                        seedDraftFromServerProgress(examSet)
-                        navigate(`/practice/${examSet.latestSessionId}`, { state: { examSetId: examSet.id } })
-                        return
-                      }
-                      void handleStart(examSet.id)
-                    }}
-                    disabled={starting === examSet.id}
-                  >
-                    {starting === examSet.id ? '进入中...' : hasDraft ? '继续作答' : isCompleted ? '查看复盘' : '开始练习'}
-                  </button>
-                  {hasDraft ? (
+                  <div className="catalog-card-actions">
                     <button
-                      type="button"
-                      className="ghost-button catalog-discard-button"
-                      onClick={() => handleOpenDiscardDialog(examSet.id)}
+                      className={[
+                        'chapter-button',
+                        hasDraft ? 'chapter-button-resume' : '',
+                        isCompleted ? 'chapter-button-completed' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={() => {
+                        const reviewSessionId =
+                          examSet.latestSessionId ?? completion?.sessionId
+                        if (isCompleted && reviewSessionId) {
+                          handleViewReview(reviewSessionId, examSet.id)
+                          return
+                        }
+                        if (hasDraft && examSet.latestSessionId) {
+                          seedDraftFromServerProgress(examSet)
+                          navigate(`/practice/${examSet.latestSessionId}`, {
+                            state: { examSetId: examSet.id },
+                          })
+                          return
+                        }
+                        void handleStart(examSet.id)
+                      }}
                       disabled={starting === examSet.id}
                     >
-                      放弃进度
+                      {starting === examSet.id
+                        ? '进入中...'
+                        : hasDraft
+                          ? '继续作答'
+                          : isCompleted
+                            ? '查看复盘'
+                            : '开始练习'}
                     </button>
-                  ) : null}
-                </div>
-              </article>
-            )
-          })}
-        </div>
+                    {hasDraft ? (
+                      <button
+                        type="button"
+                        className="ghost-button catalog-discard-button"
+                        onClick={() => handleOpenDiscardDialog(examSet.id)}
+                        disabled={starting === examSet.id}
+                      >
+                        放弃进度
+                      </button>
+                    ) : null}
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        ) : null}
 
-        {totalPages > 1 ? (
+        {!loading && !loadError && totalPages > 1 ? (
           <div className="catalog-pagination">
             <button
               type="button"
@@ -243,7 +325,9 @@ export default function ExamSetListPage() {
                     type="button"
                     className={`catalog-page-number${pageNumber === currentPage ? ' active' : ''}`}
                     onClick={() => setPage(pageNumber)}
-                    aria-current={pageNumber === currentPage ? 'page' : undefined}
+                    aria-current={
+                      pageNumber === currentPage ? 'page' : undefined
+                    }
                   >
                     {pageNumber}
                   </button>
@@ -253,7 +337,9 @@ export default function ExamSetListPage() {
             <button
               type="button"
               className="ghost-button catalog-page-button"
-              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+              onClick={() =>
+                setPage((current) => Math.min(totalPages, current + 1))
+              }
               disabled={currentPage === totalPages}
             >
               下一页

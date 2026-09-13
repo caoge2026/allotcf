@@ -23,23 +23,25 @@ function isGuestActionRequest(method?: string, url?: string) {
     return false
   }
 
-  if (normalizedMethod === 'POST' && url === '/practice-sessions') {
+  const requestPath = url.split('?')[0]
+
+  if (normalizedMethod === 'POST' && requestPath === '/practice-sessions') {
     return true
   }
 
-  if (normalizedMethod === 'POST' && /^\/practice-sessions\/\d+\/(submit|progress)$/.test(url)) {
+  if (normalizedMethod === 'POST' && /^\/practice-sessions\/\d+\/(submit|progress)$/.test(requestPath)) {
     return true
   }
 
-  if ((normalizedMethod === 'POST' || normalizedMethod === 'DELETE') && /^\/review\/bookmarks\/\d+$/.test(url)) {
+  if ((normalizedMethod === 'POST' || normalizedMethod === 'DELETE') && /^\/review\/bookmarks\/\d+$/.test(requestPath)) {
     return true
   }
 
-  if (normalizedMethod === 'POST' && /^\/speaking\/scenarios\/\d+\/attempts$/.test(url)) {
+  if (normalizedMethod === 'POST' && /^\/speaking\/scenarios\/\d+\/attempts$/.test(requestPath)) {
     return true
   }
 
-  return normalizedMethod === 'POST' && /^\/review\/wrong-questions\/\d+\/attempt$/.test(url)
+  return normalizedMethod === 'POST' && /^\/review\/wrong-questions\/\d+\/attempt$/.test(requestPath)
 }
 
 http.interceptors.response.use(
@@ -59,7 +61,9 @@ http.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    const isNotePermissionDenied = error.response?.status === 403 &&
+      /^\/manage\/grammar-notes(?:[/?]|$)/.test(error.config?.url || '')
+    if (error.response?.status === 401 || (error.response?.status === 403 && !isNotePermissionDenied)) {
       localStorage.removeItem('token')
       window.location.href = '/login'
     }

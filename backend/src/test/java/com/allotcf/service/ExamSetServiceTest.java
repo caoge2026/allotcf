@@ -106,15 +106,40 @@ class ExamSetServiceTest {
         when(examSet.getId()).thenReturn(2L);
         when(examSet.getTitle()).thenReturn("TCF 阅读真题 01");
         when(examSet.getType()).thenReturn("READING");
-        when(examSet.getQuestions()).thenReturn(List.of());
         when(examSetRepository.findAll()).thenReturn(List.of(examSet));
-        when(userExamSetProgressRepository.findByUserIdAndExamSetId(user.getId(), 2L))
-            .thenReturn(Optional.of(progress));
+        progress.setExamSet(examSet);
+        when(userExamSetProgressRepository.findByUserIdAndExamSetIdIn(user.getId(), List.of(2L)))
+            .thenReturn(List.of(progress));
 
         List<ExamSetDto> result = examSetService.listForUser(user);
 
         assertThat(result.get(0).getPracticeStatus()).isEqualTo("IN_PROGRESS");
         assertThat(result.get(0).getCurrentIndex()).isEqualTo(10);
         assertThat(result.get(0).getLatestSessionId()).isEqualTo(123L);
+    }
+
+    @Test
+    void list_counts_empty_sets_without_loading_each_question_collection() {
+        ExamSet first = mock(ExamSet.class);
+        ExamSet empty = mock(ExamSet.class);
+        when(first.getId()).thenReturn(10L);
+        when(empty.getId()).thenReturn(20L);
+        when(examSetRepository.findAll()).thenReturn(List.of(first, empty));
+        when(examSetRepository.countQuestionsByExamSetIds(List.of(10L, 20L)))
+            .thenReturn(java.util.Collections.singletonList(new Object[]{10L, 39L}));
+        var result = examSetService.listAll();
+        assertThat(result).extracting(ExamSetDto::getQuestionCount).containsExactly(39, 0);
+        org.mockito.Mockito.verify(first, org.mockito.Mockito.never()).getQuestions();
+        org.mockito.Mockito.verify(empty, org.mockito.Mockito.never()).getQuestions();
+        org.mockito.Mockito.verify(examSetRepository).countQuestionsByExamSetIds(List.of(10L, 20L));
+    }
+
+    @Test
+    void empty_catalog_does_not_issue_empty_in_queries() {
+        when(examSetRepository.findAll()).thenReturn(List.of());
+        assertThat(examSetService.listForUser(new User())).isEmpty();
+        org.mockito.Mockito.verifyNoInteractions(userExamSetProgressRepository);
+        org.mockito.Mockito.verify(examSetRepository, org.mockito.Mockito.never())
+            .countQuestionsByExamSetIds(org.mockito.ArgumentMatchers.anyList());
     }
 }

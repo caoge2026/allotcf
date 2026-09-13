@@ -1,0 +1,20 @@
+{
+  "mysql": "5.7.27",
+  "data": "synthetic only; no production rows",
+  "preserved_tables": 12,
+  "preserved_rows": 13,
+  "restore_exact": true,
+  "drift_refused": true,
+  "repeated_migrate_safe": true,
+  "migration_history": [
+    [
+      "1",
+      1
+    ],
+    [
+      "2",
+      1
+    ]
+  ],
+  "preserved_values_sha256": "2a24f51546b83c4b06f41f86bda397ab5acd3331726bea5110e70428934e9a71"
+}

@@ -12,6 +12,9 @@ import com.allotcf.repository.UserExamSetProgressRepository;
 import com.allotcf.repository.UserQuestionBookmarkRepository;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -33,23 +36,23 @@ public class ExamSetService {
     }
 
     public List<ExamSetDto> listAll() {
-        return examSetRepository.findAll().stream()
+        List<ExamSet> examSets = examSetRepository.findAll();
+        Map<Long, Integer> questionCounts = loadQuestionCounts(examSets);
+        return examSets.stream()
             .map(examSet -> new ExamSetDto(
-                examSet.getId(),
-                examSet.getTitle(),
-                examSet.getType(),
-                examSet.getCreatedAt(),
-                examSet.getQuestions() == null ? 0 : examSet.getQuestions().size()
+                examSet.getId(), examSet.getTitle(), examSet.getType(), examSet.getCreatedAt(),
+                questionCounts.getOrDefault(examSet.getId(), 0)
             ))
             .toList();
     }
 
     public List<ExamSetDto> listForUser(User user) {
-        return examSetRepository.findAll().stream()
-            .map(examSet -> toExamSetDto(
-                examSet,
-                userExamSetProgressRepository.findByUserIdAndExamSetId(user.getId(), examSet.getId()).orElse(null)
-            ))
+        List<ExamSet> examSets = examSetRepository.findAll();
+        Map<Long, Integer> questionCounts = loadQuestionCounts(examSets);
+        Map<Long, UserExamSetProgress> progressByExamSetId = loadProgressByExamSetId(user, examSets);
+        return examSets.stream()
+            .map(examSet -> toExamSetDto(examSet, questionCounts.getOrDefault(examSet.getId(), 0),
+                progressByExamSetId.get(examSet.getId())))
             .toList();
     }
 
@@ -99,8 +102,23 @@ public class ExamSetService {
         );
     }
 
-    private ExamSetDto toExamSetDto(ExamSet examSet, UserExamSetProgress progress) {
-        int questionCount = examSet.getQuestions() == null ? 0 : examSet.getQuestions().size();
+    private Map<Long, Integer> loadQuestionCounts(List<ExamSet> examSets) {
+        List<Long> examSetIds = examSets.stream().map(ExamSet::getId).toList();
+        if (examSetIds.isEmpty()) return Map.of();
+        return examSetRepository.countQuestionsByExamSetIds(examSetIds).stream()
+            .collect(Collectors.toMap(row -> (Long) row[0], row -> ((Number) row[1]).intValue()));
+    }
+
+    private Map<Long, UserExamSetProgress> loadProgressByExamSetId(User user, List<ExamSet> examSets) {
+        if (user == null) return Map.of();
+        List<Long> examSetIds = examSets.stream().map(ExamSet::getId).toList();
+        if (examSetIds.isEmpty()) return Map.of();
+        return userExamSetProgressRepository.findByUserIdAndExamSetIdIn(user.getId(), examSetIds).stream()
+            .filter(progress -> progress.getExamSet() != null && progress.getExamSet().getId() != null)
+            .collect(Collectors.toMap(progress -> progress.getExamSet().getId(), Function.identity()));
+    }
+
+    private ExamSetDto toExamSetDto(ExamSet examSet, int questionCount, UserExamSetProgress progress) {
         if (progress == null) {
             return new ExamSetDto(
                 examSet.getId(),

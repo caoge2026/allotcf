@@ -53,7 +53,7 @@ public class PracticeController {
     ) {
         try {
             guestActionService.requireAllowed(user);
-            Object response = practiceService.submit(id, request);
+            Object response = practiceService.submit(id, request, user.getId());
             guestActionService.consumeIfGuest(user);
             return ResponseEntity.ok(response);
         } catch (GuestLimitReachedException exception) {
@@ -71,7 +71,7 @@ public class PracticeController {
     ) {
         try {
             guestActionService.requireAllowed(user);
-            practiceService.saveProgress(id, request);
+            practiceService.saveProgress(id, request, user.getId());
             guestActionService.consumeIfGuest(user);
             return ResponseEntity.ok(Map.of("saved", true));
         } catch (GuestLimitReachedException exception) {
@@ -82,9 +82,9 @@ public class PracticeController {
     }
 
     @GetMapping("/{id}/result")
-    public ResponseEntity<?> result(@PathVariable Long id) {
+    public ResponseEntity<?> result(@PathVariable Long id, @AuthenticationPrincipal User user) {
         try {
-            return ResponseEntity.ok(practiceService.getResult(id));
+            return ResponseEntity.ok(practiceService.getResult(id, user.getId()));
         } catch (IllegalArgumentException exception) {
             return ResponseEntity.notFound().build();
         }

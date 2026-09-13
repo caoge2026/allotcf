@@ -21,3 +21,11 @@ scripts/venv/
 .vscode/
 *.iml
 .DS_Store
+
+# Local configuration and release backups
+.env
+.env.*
+!.env.example
+.recovery/
+*.pem
+*.key
